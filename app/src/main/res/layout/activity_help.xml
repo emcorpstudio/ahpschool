@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    android:background="@color/colorGreyMedium"
+    android:orientation="vertical"
+    tools:context=".HelpActivity">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="HELP"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque ac massa orci. Suspendisse eget dui sit amet sapien consequat tincidunt eget eget eros. Fusce sagittis ut tortor quis posuere. Vestibulum nec bibendum tellus. Cras lacus elit, dignissim quis nunc et, lacinia semper nisi. Nullam vulputate sodales sapien, vitae volutpat dolor rhoncus in. Vestibulum aliquet non mauris eget lobortis. Aliquam vitae nunc gravida velit gravida imperdiet non at urna. Aenean consectetur nisl ut vulputate imperdiet. Maecenas consequat vel quam id facilisis. Nulla convallis lobortis vehicula. Aenean volutpat varius velit, non vulputate lectus ultrices id. Maecenas ut risus luctus, auctor ipsum finibus, dapibus tortor."
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:gravity="center"/>
+</LinearLayout>
