@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
         btnLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getApplicationContext(),"Coming Soon...",Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this,AhpActivity.class));
+                finish();
             }
         });
     }
