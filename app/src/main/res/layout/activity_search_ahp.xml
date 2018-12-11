@@ -4,16 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorGreyMedium"
     android:orientation="vertical"
-    tools:context=".SchoolActivity">
+    android:background="@color/colorGreyMedium"
+    tools:context=".SearchAhpActivity">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_margin="10dp"
         android:layout_gravity="center_vertical">
         <ImageButton
             android:layout_width="56dp"
@@ -28,7 +26,6 @@
             android:layout_height="56dp"
             android:layout_toLeftOf="@id/btnSearch"
             android:id="@+id/edtSearch"
-            android:maxLines="1"
             android:hint="Search"/>
 
     </RelativeLayout>
@@ -38,14 +35,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="5dp"
         android:singleLine="true" />
     <EditText
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:id="@+id/edtLocation"
         android:enabled="false"
         android:hint="Search Location"/>

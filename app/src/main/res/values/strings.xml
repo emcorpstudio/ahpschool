@@ -1,3 +1,75 @@
 <resources>
-    <string name="app_name">AhpSchool</string>
+    <string name="app_name">AHP School</string>
+
+    <string-array name="kelurahan">
+        <item>Angke, Tambora, Jakarta Barat#-6.1454501#106.7957153</item>
+        <item>Cengkareng Barat, Cengkareng, Jakarta Barat#-6.1361871#106.7264125</item>
+        <item>Cengkareng Timur, Cengkareng, Jakarta Barat#-6.1423316#106.7337841</item>
+        <item>Duri Kepa, Kebon Jeruk, Jakarta Barat#-6.1691846#106.7748596</item>
+        <item>Duri Kosambi, Cengkareng, Jakarta Barat#-6.1721148#106.7205154</item>
+        <item>Duri Selatan, Tambora, Jakarta Barat#-6.1585385#106.8053014</item>
+        <item>Duri Utara, Tambora, Jakarta Barat#-6.1547106#106.8053014</item>
+        <item>Glodok#-6.1448812#106.813413</item>
+        <item>Grogol, Grogol Petamburan, Jakarta Barat#-6.1608563#106.7927658</item>
+        <item>Jatipulo, Palmerah, Jakarta Barat#-6.1783437#106.804564</item>
+        <item>Jelambar, Grogol Petamburan, Jakarta Barat#-6.1598176#106.7853922</item>
+        <item>Jembatan Besi, Tambora, Jakarta Barat#-6.1530103#106.7986648</item>
+        <item>Jembatan Lima, Tambora, Jakarta Barat#-6.1451657#106.804564</item>
+        <item>Joglo, Kembangan, Jakarta Barat#-6.2182191#106.7453307</item>
+        <item>Kali Anyar, Tambora, Jakarta Barat#-6.1574525#106.7994022</item>
+        <item>Kalideres, Kalideres, Jakarta Barat#-6.1342937#106.7057733</item>
+        <item>Kamal, Kalideres, Jakarta Barat#-6.1014059#106.6969285</item>
+        <item>Kapuk, Cengkareng, Jakarta Barat#-6.1403479#106.7559004</item>
+        <item>Keagungan, Taman Sari, Jakarta Barat#-6.1505982#106.8141505</item>
+        <item>Kebon Jeruk, Kebon Jeruk, Jakarta Barat#-6.183459#106.7647475</item>
+        <item>Kedaung Kali Angke, Cengkareng, Jakarta Barat#-6.150556#106.7559004</item>
+        <item>Kedoya Selatan, Kebon Jeruk, Jakarta Barat#-6.1810006#106.7617984</item>
+        <item>Kedoya Utara, Kebon Jeruk, Jakarta Barat#-6.1707876#106.7617984</item>
+        <item>Kelapa Dua, Kebon Jeruk, Jakarta Barat#-6.2101341#106.7691712</item>
+        <item>Kemanggisan, Palmerah, Jakarta Barat#-6.1902622#106.791291</item>
+        <item>Kembangan Selatan, Kembangan, Jakarta Barat#-6.1866784#106.7441048</item>
+        <item>Kembangan Utara, Kembangan, Jakarta Barat#-6.1713568#106.7441048</item>
+        <item>Kota Bambu, Palmerah, Jakarta Barat#-6.18264#106.80825</item>
+        <item>Krendang, Tambora, Jakarta Barat#-6.1496546#106.8038266</item>
+        <item>Krukut, Taman Sari, Jakarta Barat#-6.1576392#106.813413</item>
+        <item>Mangga Besar, Taman Sari, Jakarta Barat#-6.145353#106.8185752</item>
+        <item>Maphar, Taman Sari, Jakarta Barat#-6.1567398#106.821525</item>
+        <item>Meruya Selatan, Kembangan, Jakarta Barat#-6.2087246#106.7337841</item>
+        <item>Meruya Utara, Kembangan, Jakarta Barat#-6.1970854#106.7382072</item>
+        <item>Palmerah, Palmerah, Jakarta Barat#-6.1900714#106.79719</item>
+        <item>Pegadungan, Kalideres, Jakarta Barat#-6.1318356#106.702825</item>
+        <item>Pekojan, Tambora, Jakarta Barat#-6.1375119#106.804564</item>
+        <item>Pinangsia, Taman Sari, Jakarta Barat#-6.1346768#106.813413</item>
+        <item>Rawa Buaya, Cengkareng, Jakarta Barat#-6.1613339#106.7382072</item>
+        <item>Roa Malaka, Tambora, Jakarta Barat#-6.1367084#106.8097259</item>
+        <item>Semanan, Kalideres, Jakarta Barat#-6.1649271#106.7057733</item>
+        <item>Slipi, Palmerah, Jakarta Barat#-6.1937584#106.8016144</item>
+        <item>Srengseng, Kembangan, Jakarta Barat#-6.2042726#106.7529514</item>
+        <item>Sukabumi Selatan, Kebon Jeruk, Jakarta Barat#-6.2214875#106.773595</item>
+        <item>Sukabumi Utara, Kebon Jeruk, Jakarta Barat#-6.2098473#106.7780189</item>
+        <item>Taman Sari, Taman Sari, Jakarta Barat#-6.1555689#106.8271524</item>
+        <item>Tambora, Tambora, Jakarta Barat#-6.1490404#106.8030892</item>
+        <item>Tanah Sareal, Tambora, Jakarta Barat#-6.1532923#106.8097259</item>
+        <item>Tangki, Taman Sari, Jakarta Barat#-6.1471478#106.8222625</item>
+        <item>Tanjung Duren Selatan, Grogol Petamburan, Jakarta Barat#-6.17882#106.7898163</item>
+        <item>Tanjung Duren Utara, Grogol Petamburan, Jakarta Barat#-6.1713515#106.7839175</item>
+        <item>Tegal Alur, Kalideres, Jakarta Barat#-6.1185387#106.7190298</item>
+        <item>Tomang, Grogol Petamburan, Jakarta Barat#-6.1747751#106.7999513</item>
+        <item>Wijaya Kusuma, Grogol Petamburan, Jakarta Barat#-6.1537689#106.7750696</item>
+
+    </string-array>
+
+    <string-array name="data_search">
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+        <item>40</item>
+        <item>50</item>
+        <item>60</item>
+        <item>70</item>
+        <item>80</item>
+        <item>90</item>
+        <item>100</item>
+    </string-array>
+    <string name="title_activity_maps">Map</string>
 </resources>

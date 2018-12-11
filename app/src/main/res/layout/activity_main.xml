@@ -31,7 +31,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Search by\nLocation"
+                    android:text="AHP\nRecommendation"
                     android:id="@+id/tv1"
                     android:gravity="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
@@ -56,7 +56,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="School\nList"
+                    android:text="Sort by\nLocation"
                     android:id="@+id/tv2"
                     android:gravity="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"

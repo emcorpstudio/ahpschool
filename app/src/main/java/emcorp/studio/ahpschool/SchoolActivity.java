@@ -3,18 +3,26 @@ package emcorp.studio.ahpschool;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -24,6 +32,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,8 +50,8 @@ import java.util.Map;
 import emcorp.studio.ahpschool.Adapter.SchoolAdapter;
 import emcorp.studio.ahpschool.Library.Constant;
 
-//public class SchoolActivity extends AppCompatActivity implements LocationListener {
-public class SchoolActivity extends AppCompatActivity {
+public class SchoolActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+
     List<String> listid = new ArrayList<String>();
     List<String> listnpsn = new ArrayList<String>();
     List<String> listnama_sekolah = new ArrayList<String>();
@@ -58,38 +71,145 @@ public class SchoolActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     LocationManager locationManager;
     String longitude = "", latitude = "";
+    String longitude_cari = "", latitude_cari = "", address_cari = "";
+    String longitudeKel = "", latitudeKel = "";
 
+    private static final String TAG = "SchoolActivity";
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLocation;
+    private LocationManager mLocationManager;
+
+    private LocationRequest mLocationRequest;
+    private com.google.android.gms.location.LocationListener listener;
+    private long UPDATE_INTERVAL = 2 * 1000;  /* 10 secs */
+    private long FASTEST_INTERVAL = 2000; /* 2 sec */
+
+    private boolean needLoad = true;
+
+    String namaSekolah = "";
+    Spinner spinLokasi;
+    List<String> listKelurahan = new ArrayList<String>();
+    List<String> listLongitude = new ArrayList<String>();
+    List<String> listLatitude = new ArrayList<String>();
+    EditText edtSearch, edtLocation;
+    ImageButton btnSearch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_school);
+        list = (ListView) findViewById(R.id.listView);
+        spinLokasi = (Spinner) findViewById(R.id.spinLokasi);
+        edtSearch = (EditText) findViewById(R.id.edtSearch);
+        edtLocation = (EditText) findViewById(R.id.edtLocation);
+        btnSearch = (ImageButton) findViewById(R.id.btnSearch);
+        getSupportActionBar().setTitle("Sort by Location");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        list = (ListView) findViewById(R.id.listView);
-        getSupportActionBar().setTitle("School List");
-        LoadProcess();
-    }
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
 
-    private void getLocation() {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        Bundle extras = getIntent().getExtras();
+        if(extras!=null){
+            longitude_cari = extras.getString("longitude");
+            latitude_cari = extras.getString("latitude");
+            address_cari = extras.getString("address");
+            edtLocation.setText(address_cari);
+            if(longitude_cari!=null){
+                if(!longitude_cari.equals("")){
+                    needLoad = false;
+                    LoadProcess(namaSekolah,latitude_cari,longitude_cari);
+                }
+            }
+
         }
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        longitude = String.valueOf(location.getLongitude());
-        latitude = String.valueOf(location.getLatitude());
-//        try {
-//            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 5, (LocationListener) this);
-//        }
-//        catch(SecurityException e) {
-//            e.printStackTrace();
-//        }
+
+        checkLocation();
+        LoadSpinner();
+
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                namaSekolah = edtSearch.getText().toString();
+                if(spinLokasi.getSelectedItemPosition()>1){
+                    latitudeKel = listLatitude.get(spinLokasi.getSelectedItemPosition());
+                    longitudeKel = listLongitude.get(spinLokasi.getSelectedItemPosition());
+                    LoadProcess(namaSekolah,latitudeKel,longitudeKel);
+                }else if(spinLokasi.getSelectedItemPosition()==0){
+                    LoadProcess(namaSekolah,latitude,longitude);
+                }else if(spinLokasi.getSelectedItemPosition()==1){
+                    //Gunakan Custom Location
+                    if(!latitude_cari.equals("")&&!edtLocation.getText().toString().equals("")){
+                        LoadProcess(namaSekolah,latitude_cari,longitude_cari);
+                    }else{
+                        Toast.makeText(getApplicationContext(),"Anda belum menggunakan custom lokasi!",Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+            }
+        });
+
+        spinLokasi.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(i==1){
+                    edtLocation.setEnabled(true);
+                }else{
+                    edtLocation.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        edtLocation.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Intent intent = new Intent(SchoolActivity.this,MapsActivity.class);
+                intent.putExtra("module","list");
+                startActivity(intent);
+                finish();
+                return true;
+            }
+        });
     }
 
-    public void LoadProcess(){
-        getLocation();
+    public void LoadSpinner() {
+        String[] kelurahanArray = getResources().getStringArray(R.array.kelurahan);
+        listKelurahan.clear();
+        listLongitude.clear();
+        listLatitude.clear();
+        listKelurahan.add("Lokasi Saya");
+        listLongitude.add("0");
+        listLatitude.add("0");
+        listKelurahan.add("Cari Lokasi");
+        listLongitude.add("0");
+        listLatitude.add("0");
+        for(int i=0;i<kelurahanArray.length;i++){
+            String[] data = kelurahanArray[i].split("#");
+            listKelurahan.add(data[0]);
+            listLatitude.add(data[1]);
+            listLongitude.add(data[2]);
+        }
+        ArrayAdapter<String> nominalAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, listKelurahan);
+        nominalAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinLokasi.setAdapter(nominalAdapter);
+
+        if(!longitude_cari.equals("")){
+            spinLokasi.setSelection(1);
+        }
+    }
+
+    public void LoadProcess(final String search, final String latitude, final String longitude){
+        needLoad = false;
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Loading...");
         progressDialog.show();
@@ -187,10 +307,9 @@ public class SchoolActivity extends AppCompatActivity {
                 params.put("function", Constant.FUNCTION_LISTSCHOOL);
                 params.put("key", Constant.KEY);
                 params.put("longitude", longitude);
-//                params.put("longitude", "112.5541225");
                 params.put("latitude", latitude);
+                params.put("nama", search);
                 Log.d("CETAK - KIRIM",longitude +" - "+latitude);
-//                params.put("latitude", "-7.1721493");
                 return params;
             }
         };
@@ -233,33 +352,136 @@ public class SchoolActivity extends AppCompatActivity {
         finish();
     }
 
-//    @Override
-//    public void onLocationChanged(Location location) {
-//        Log.d("CETAK","Latitude: " + location.getLatitude() + "\n Longitude: " + location.getLongitude());
-//        longitude = String.valueOf(location.getLongitude());
-//        latitude = String.valueOf(location.getLatitude());
-//        try {
-//            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-//            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-//            Log.d("CETAK","\n"+addresses.get(0).getAddressLine(0)+", "+
-//                    addresses.get(0).getAddressLine(1)+", "+addresses.get(0).getAddressLine(2));
-//        }catch(Exception e){
-//
-//        }
-//    }
-//
-//    @Override
-//    public void onProviderDisabled(String provider) {
-//        Toast.makeText(SchoolActivity.this, "Please Enable GPS and Internet", Toast.LENGTH_SHORT).show();
-//    }
-//
-//    @Override
-//    public void onStatusChanged(String provider, int status, Bundle extras) {
-//
-//    }
-//
-//    @Override
-//    public void onProviderEnabled(String provider) {
-//
-//    }
+    @Override
+    public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        startLocationUpdates();
+
+        mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+        if(mLocation == null){
+            startLocationUpdates();
+        }
+        if (mLocation != null) {
+//            longitude = String.valueOf(mLocation.getLongitude());
+//            latitude = String.valueOf(mLocation.getLatitude());
+            // mLatitudeTextView.setText(String.valueOf(mLocation.getLatitude()));
+            //mLongitudeTextView.setText(String.valueOf(mLocation.getLongitude()));
+        } else {
+            Toast.makeText(this, "Location not Detected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "Connection Suspended");
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.i(TAG, "Connection failed. Error: " + connectionResult.getErrorCode());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    protected void startLocationUpdates() {
+        // Create the location request
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(UPDATE_INTERVAL)
+                .setFastestInterval(FASTEST_INTERVAL);
+        // Request location updates
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                mLocationRequest, this);
+        Log.d("reque", "--->>>>");
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        String msg = "Updated Location: " +
+                Double.toString(location.getLatitude()) + "," +
+                Double.toString(location.getLongitude());
+
+//        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        // You can now create a LatLng Object for use with maps
+        longitude = String.valueOf(location.getLongitude());
+        latitude = String.valueOf(location.getLatitude());
+//        Log.d("CETAK",msg);
+        if(needLoad){
+            LoadProcess(namaSekolah, latitude, longitude);
+        }
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+    }
+
+    private boolean checkLocation() {
+        if(!isLocationEnabled())
+            showAlert();
+        return isLocationEnabled();
+    }
+
+    private void showAlert() {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Enable Location")
+                .setMessage("Your Locations Settings is set to 'Off'.\nPlease Enable Location to " +
+                        "use this app")
+                .setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+
+                        Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(myIntent);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+
+                    }
+                });
+        dialog.show();
+    }
+
+    private boolean isLocationEnabled() {
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+
 }

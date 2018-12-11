@@ -9,11 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import emcorp.studio.ahpschool.Library.Constant;
 import emcorp.studio.ahpschool.R;
 
 public class SchoolAdapter extends ArrayAdapter<String> {
@@ -65,6 +70,7 @@ public class SchoolAdapter extends ArrayAdapter<String> {
         TextView tvAkreditasi = (TextView) rowView.findViewById(R.id.tvAkreditasi);
         TextView tvJarak = (TextView) rowView.findViewById(R.id.tvJarak);
         TextView tvTelepon = (TextView) rowView.findViewById(R.id.tvTelepon);
+        ImageView imgSchool = (ImageView) rowView.findViewById(R.id.imgSchool);
 
         tvNama.setText(listnama_sekolah.get(position));
         tvAlamat.setText(listalamat.get(position));
@@ -72,6 +78,14 @@ public class SchoolAdapter extends ArrayAdapter<String> {
         tvAkreditasi.setText("Akreditasi : "+listakreditasi.get(position));
         tvJarak.setText("Jarak : "+listdistance.get(position)+" Km");
         tvTelepon.setText("No Telp : "+listtelepon.get(position));
+        Picasso.with(getContext())
+                .load(Constant.PICT_URL+listfoto.get(position))
+                .placeholder(R.drawable.logo)
+                .error(R.drawable.logo)
+                .noFade()
+                .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE)
+                .resize(120, 120)
+                .into(imgSchool);
         return rowView;
     }
 

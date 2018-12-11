@@ -49,8 +49,9 @@ import java.util.Map;
 
 import emcorp.studio.ahpschool.Adapter.SchoolAdapter;
 import emcorp.studio.ahpschool.Library.Constant;
+import emcorp.studio.ahpschool.Library.SharedPrefManager;
 
-public class AhpActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+public class SearchAhpActivity extends AppCompatActivity  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
     List<String> listid = new ArrayList<String>();
     List<String> listnpsn = new ArrayList<String>();
     List<String> listnama_sekolah = new ArrayList<String>();
@@ -71,8 +72,9 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
     LocationManager locationManager;
     String longitude = "", latitude = "";
     String longitude_cari = "", latitude_cari = "", address_cari = "";
+    String jarak = "", akreditasi = "", lingkungan = "";
 
-    private static final String TAG = "AhpActivity";
+    private static final String TAG = "SearchAhpActivity";
     private GoogleApiClient mGoogleApiClient;
     private Location mLocation;
     private LocationManager mLocationManager;
@@ -83,7 +85,6 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
 
     private boolean needLoad = true;
-
     String namaSekolah = "";
     Spinner spinLokasi;
     List<String> listKelurahan = new ArrayList<String>();
@@ -95,7 +96,7 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ahp);
+        setContentView(R.layout.activity_search_ahp);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         list = (ListView) findViewById(R.id.listView);
@@ -103,19 +104,17 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
         edtSearch = (EditText) findViewById(R.id.edtSearch);
         btnSearch = (ImageButton) findViewById(R.id.btnSearch);
         edtLocation = (EditText) findViewById(R.id.edtLocation);
-        getSupportActionBar().setTitle("AHP Recomendation");
+        getSupportActionBar().setTitle("Advanced Search");
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-
-        mLocationManager = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
-
+        jarak = SharedPrefManager.getInstance(getApplicationContext()).getReferences(Constant.JARAK);
+        akreditasi = SharedPrefManager.getInstance(getApplicationContext()).getReferences(Constant.AKREDITASI);
+        lingkungan = SharedPrefManager.getInstance(getApplicationContext()).getReferences(Constant.LINGKUNGAN);
 
         Bundle extras = getIntent().getExtras();
         if(extras!=null){
+//            jarak = extras.getString("jarak");
+//            akreditasi = extras.getString("akreditasi");
+//            lingkungan = extras.getString("lingkungan");
             longitude_cari = extras.getString("longitude");
             latitude_cari = extras.getString("latitude");
             address_cari = extras.getString("address");
@@ -126,8 +125,16 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
                     LoadProcess(namaSekolah,latitude_cari,longitude_cari);
                 }
             }
+
         }
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+
+        mLocationManager = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
         checkLocation();
         LoadSpinner();
 
@@ -143,7 +150,7 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
                     LoadProcess(namaSekolah,latitude,longitude);
                 }else if(spinLokasi.getSelectedItemPosition()==1){
                     //Gunakan Custom Location
-                    if(!latitude_cari.equals("")&&!edtLocation.getText().toString().equals("")){
+                    if(!latitude_cari.equals("")){
                         LoadProcess(namaSekolah,latitude_cari,longitude_cari);
                     }else{
                         Toast.makeText(getApplicationContext(),"Anda belum menggunakan custom lokasi!",Toast.LENGTH_SHORT).show();
@@ -172,8 +179,8 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
         edtLocation.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                Intent intent = new Intent(AhpActivity.this,MapsActivity.class);
-                intent.putExtra("module","ahp");
+                Intent intent = new Intent(SearchAhpActivity.this,MapsActivity.class);
+                intent.putExtra("module","search");
                 startActivity(intent);
                 finish();
                 return true;
@@ -307,9 +314,9 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
                 params.put("key", Constant.KEY);
                 params.put("longitude", longitude);
                 params.put("latitude", latitude);
-                params.put("jarak", "");
-                params.put("akreditasi", "");
-                params.put("lingkungan", "");
+                params.put("jarak", jarak);
+                params.put("akreditasi", akreditasi);
+                params.put("lingkungan", lingkungan);
                 params.put("nama", search);
                 Log.d("CETAK - KIRIM",longitude +" - "+latitude);
                 return params;
@@ -341,7 +348,7 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            startActivity(new Intent(AhpActivity.this,MainActivity.class));
+            startActivity(new Intent(SearchAhpActivity.this,SearchActivity.class));
             finish();
         }
 
@@ -350,7 +357,7 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(AhpActivity.this,MainActivity.class));
+        startActivity(new Intent(SearchAhpActivity.this,SearchActivity.class));
         finish();
     }
 
@@ -444,7 +451,7 @@ public class AhpActivity extends AppCompatActivity implements GoogleApiClient.Co
         // You can now create a LatLng Object for use with maps
         longitude = String.valueOf(location.getLongitude());
         latitude = String.valueOf(location.getLatitude());
-//        Log.d("CETAK",msg);
+        Log.d("CETAK",msg);
         if(needLoad){
             LoadProcess(namaSekolah,latitude,longitude);
         }
